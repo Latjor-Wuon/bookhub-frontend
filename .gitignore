@@ -23,10 +23,11 @@ dist-ssr
 production.env
 development.env
 
-# API configuration
+# API configuration (but allow tsconfig.json)
 *api*
 *token*
 *key*
+!tsconfig.json
 
 # Editor directories and files
 .vscode/*
