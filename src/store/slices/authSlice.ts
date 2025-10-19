@@ -1,7 +1,32 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { AuthState, LoginCredentials, RegisterCredentials } from '../../types';
-import authApi from '../../authApi';
+// Inline API functions for Vercel compatibility
+import axios from 'axios';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+const authApi = {
+  login: async (credentials: any) => {
+    const response = await api.post('/auth/login', credentials);
+    return response.data;
+  },
+  register: async (credentials: any) => {
+    const response = await api.post('/auth/register', credentials);
+    return response.data;
+  },
+  getProfile: async (userId: string) => {
+    const response = await api.get(`/auth/profile/${userId}`);
+    return response.data;
+  },
+};
 
 const initialState: AuthState = {
   user: null,

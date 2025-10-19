@@ -1,7 +1,80 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { Book, BooksState, BookFilters } from '../../types';
-import bookApi from '../../bookApi';
+// Inline API functions for Vercel compatibility
+import axios from 'axios';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Add token to requests
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// Handle token expiration
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
+const bookApi = {
+  getBooks: async (page: number = 1, filters?: any) => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: '12',
+      ...(filters?.search && { search: filters.search }),
+      ...(filters?.genre && { genre: filters.genre }),
+      ...(filters?.sortBy && { sortBy: filters.sortBy }),
+      ...(filters?.sortOrder && { sortOrder: filters.sortOrder }),
+      ...(filters?.minRating && { minRating: filters.minRating.toString() }),
+      ...(filters?.maxPrice && { maxPrice: filters.maxPrice.toString() }),
+    });
+
+    const response = await api.get(`/books?${params}`);
+    return response.data;
+  },
+
+  getBookById: async (id: string) => {
+    const response = await api.get(`/books/${id}`);
+    return response.data;
+  },
+
+  createBook: async (bookData: any) => {
+    const response = await api.post('/books', bookData);
+    return response.data;
+  },
+
+  updateBook: async (id: string, bookData: any) => {
+    const response = await api.put(`/books/${id}`, bookData);
+    return response.data;
+  },
+
+  deleteBook: async (id: string) => {
+    await api.delete(`/books/${id}`);
+  },
+
+  getGenres: async () => {
+    const response = await api.get('/books/genres');
+    return response.data;
+  },
+};
 
 const initialState: BooksState = {
   books: [],
