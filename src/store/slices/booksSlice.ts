@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { Book, BooksState, BookFilters } from '../../types';
-import { bookApi } from '../../api';
+import bookApi from '../../bookApi';
 
 const initialState: BooksState = {
   books: [],
