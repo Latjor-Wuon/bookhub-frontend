@@ -4,7 +4,7 @@ import type { AuthState, LoginCredentials, RegisterCredentials } from '../../typ
 // Inline API functions for Vercel compatibility
 import axios from 'axios';
 
-const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000/api';
+const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || 'https://bookhub-backend-1-fctt.onrender.com/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
